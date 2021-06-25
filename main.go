@@ -6,12 +6,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"reflect"
 	"strconv"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
+
+const one_predicate = "a"
+const two_predicate = "b"
 
 func succes_place(result string, w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
@@ -19,9 +21,8 @@ func succes_place(result string, w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"Value": result, "Status": "true", "Err": ""})
 }
 
-func get_variable_from_uri(variable_name string, w http.ResponseWriter, r *http.Request) []string {
+func get_variable_string_from_uri(variable_name string, w http.ResponseWriter, r *http.Request) []string {
 	variable, ok := r.URL.Query()[variable_name]
-	fmt.Println(reflect.TypeOf(variable))
 	if !ok || len(variable[0]) < 1 {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"message": "missed"}`))
@@ -29,41 +30,38 @@ func get_variable_from_uri(variable_name string, w http.ResponseWriter, r *http.
 	return variable
 }
 
-func return_variables_for_equalize(one_name string, second_name string, w http.ResponseWriter, r *http.Request) (uint64, uint64) {
+func get_integers_for_equalize(one_name string, second_name string, w http.ResponseWriter, r *http.Request) (int, int) {
 
-	one := get_variable_from_uri(one_name, w, r)
-	two := get_variable_from_uri(second_name, w, r)
-	first_value, err := strconv.ParseUint(one[0], 16, 64)
-	second_value, err := strconv.ParseUint(two[0], 16, 64)
-	fmt.Println((err))
-	return first_value, second_value
-
+	one := get_variable_string_from_uri(one_name, w, r)
+	two := get_variable_string_from_uri(second_name, w, r)
+	first_int, err := strconv.Atoi(one[0])
+	second_int, err := strconv.Atoi(two[0])
+	if err != nil {
+		fmt.Println((err))
+	}
+	return first_int, second_int
 }
 
 func div(w http.ResponseWriter, r *http.Request) {
-	first, second := return_variables_for_equalize("a", "b", w, r)
-	//TODO add hanler for equalize two variales
+	first, second := get_integers_for_equalize(one_predicate, two_predicate, w, r)
 	result := first / second
 	succes_place(fmt.Sprint(result), w, r)
 }
 
 func add(w http.ResponseWriter, r *http.Request) {
-	first, second := return_variables_for_equalize("a", "b", w, r)
-	//TODO add hanler for equalize two variales
+	first, second := get_integers_for_equalize(one_predicate, two_predicate, w, r)
 	result := first + second
 	succes_place(fmt.Sprint(result), w, r)
 }
 
 func sub(w http.ResponseWriter, r *http.Request) {
-	first, second := return_variables_for_equalize("a", "b", w, r)
-	//TODO add hanler for equalize two variales
+	first, second := get_integers_for_equalize(one_predicate, two_predicate, w, r)
 	result := first - second
 	succes_place(fmt.Sprint(result), w, r)
 }
 
 func mul(w http.ResponseWriter, r *http.Request) {
-	first, second := return_variables_for_equalize("a", "b", w, r)
-	//TODO add hanler for equalize two variales
+	first, second := get_integers_for_equalize(one_predicate, two_predicate, w, r)
 	result := first * second
 	succes_place(fmt.Sprint(result), w, r)
 }
